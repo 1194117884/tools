@@ -1,0 +1,52 @@
+#!/bin/bash
+# Git wrapper tool for cloning, pulling and pushing to Gitee repositories with predefined credentials
+
+#configuration
+temp_user_name='Jenkins'
+temp_user_email='zhang@caizhanbao.cn'
+temp_repository='https://zhang%40caizhanbao.cn@gitee.com/caizhanbao/'
+temp_file='.git/.repo'
+
+case "$1" in
+  clone)
+    echo 'Clone repository:'$2
+    repository=$temp_repository$2
+
+    mkdir $2 \
+    		&& cd $2 \
+    		&& git init \
+    		&& echo $repository > $temp_file\
+    		&& git config user.name $temp_user_name \
+    		&& git config user.email $temp_user_email \
+    		&& git config pull.rebase false	\
+    		&& git pull $repository \
+    		&& cd ..
+  ;;
+  pull)
+    branch=''
+    if [ -z "$2" ]
+    then
+      branch='master';
+    else
+      branch=$2
+    fi
+    echo 'Pull Branch:'$branch
+    git pull $(cat $temp_file) $branch
+  ;;
+  push)
+      branch=''
+      if [ -z "$2" ]
+      then
+        branch='master';
+      else
+        branch=$2
+      fi
+      echo 'Push Branch:'$branch
+      git push $(cat $temp_file) $branch
+    ;;
+  *)
+    git $*
+  ;;
+esac
+
+exit 0;

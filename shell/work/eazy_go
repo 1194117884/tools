@@ -1,0 +1,5 @@
+#!/bin/sh
+# SSH connection helper for quick server access using predefined credentials
+
+/usr/bin/expect /root/ryc_tools/ssh.exp 'root@'$1 1xin1yi**.deng1!
+#/usr/bin/expect /root/ryc_tools/ssh.exp $1 **.deng1!

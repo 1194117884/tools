@@ -1,0 +1,31 @@
+#!/bin/sh
+# Server locator and connection tool that parses nginx configuration to find available servers
+
+nginx_config_file=/usr/local/nginx/conf/nginx.conf
+
+
+server_names=$(cat $nginx_config_file | grep $1 | awk '{print $2}' | cut -d ':' -f1)
+
+for server_name in ${server_names[*]}
+do
+  servers+=($server_name)
+done
+
+
+id=1
+echo 'choose your server (V =. =V)'
+for server in ${servers[*]}
+do
+  echo '  |-' $id ' -> ' $server
+  id=$(($id+1))
+done
+
+
+read server_no
+target=${servers[$server_no-1]}
+
+echo 'start login '$target
+
+/root/ryc_tools/eazy_go $target
+
+exit 0;

@@ -1,0 +1,71 @@
+#!/bin/bash
+# Application health monitoring and auto-restart service for Java applications
+CHECK_URL=/health
+READ_TIMEOUT=2
+#
+RESTART_SLEEP=60
+PACE_SLEEP=5
+echo '#######################'
+#########################
+ICU_ROOM=$PWD
+LIB_NAME=$(ls *.jar)
+if [[ ! -z $LIB_NAME ]]
+then
+  echo 'Initializing icu room: '$ICU_ROOM   
+else
+  echo 'no jar founded'
+  exit 0
+fi
+echo 'Protecting the beating heart: '$LIB_NAME
+#
+#
+while true
+do
+  #
+  PID=$(jps -mlvV | grep $LIB_NAME | awk '{print $1}')
+  if [[ ! -z $PID ]]
+  then
+    echo '.' 
+  else
+    echo '.Death!!!'
+    (cd $ICU_ROOM && sh ryc_tool start)
+
+    echo ''
+    for pc in $(seq 1 $RESTART_SLEEP);
+    do
+      echo -ne "Rescuing $pc%\033[0K\r"
+      sleep 1
+    done
+
+    continue
+  fi
+  #
+  PORT=$(netstat -apn | grep 0.0.0.0 | grep $PID/java | awk '{print $4}' | cut -d : -f2)
+  if [[ ! -z $PORT ]]
+  then
+    echo '..' 
+  else
+    echo '..Recovering!!!'
+
+    for pc in $(seq 1 $RESTART_SLEEP);
+    do
+      echo -ne "$pc%\033[0K\r"
+      sleep 1
+    done
+
+    continue
+  fi
+  #
+  STATUS=$(curl localhost:$PORT$CHECK_URL --max-time $READ_TIMEOUT -s)
+  if [[ ! -z $STATUS ]]
+  then
+     echo '...Bang Bang~' 
+     sleep $PACE_SLEEP
+  else
+     echo '...Danger!!!'
+     (cd $ICU_ROOM && sh ryc_tool stop && sh ryc_tool start)
+     sleep $RESTART_SLEEP
+  fi
+done
+
+exit 0

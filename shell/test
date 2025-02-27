@@ -1,4 +1,5 @@
 #!/bin/bash
+# A simple test script to display network interface configuration and directory contents
 
 ifconfig
 

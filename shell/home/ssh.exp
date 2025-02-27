@@ -1,0 +1,15 @@
+#!/usr/bin/expect
+# Expect script for automated SSH connections with password authentication
+set time 10
+
+set host [lindex $argv 0]
+set i 1
+
+spawn ssh $host
+
+expect {
+ "*yes/no*" {send "yes\r"; exp_continue}
+ "*assword*" {send "[lindex $argv $i]\r"; incr i;exp_continue }
+ "*]#" {send "ifconfig | grep inet && ls\r"}
+}
+interact

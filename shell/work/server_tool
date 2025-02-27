@@ -1,0 +1,59 @@
+#!/bin/sh
+# Java application service manager for starting, stopping and monitoring Java jar applications
+SERVER=$(/bin/pwd)
+LIBPATH=$(find $SERVER -name '*.jar')
+LIBNAME=${LIBPATH##*/}
+LIBPID=$(ps aux | grep java | grep $LIBNAME | awk '{print $2}')
+
+cd $SERVER
+case "$1" in
+  status)
+    echo 'runing with PID:'$LIBPID    
+  ;;
+  start)
+    nohup java -jar -Xms256m -Xmx256m $LIBNAME &> /dev/null &
+
+    echo '[starting...] the server with LIB:'$LIBNAME
+  ;;
+  remote)
+    nohup java -jar -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 $LIBNAME &> /dev/null &
+    echo '[starting...] the server with LIB:'$LIBNAME
+  ;;
+  stop)
+    kill -9 $LIBPID
+    echo '[stoping....] the server with PID:'$LIBPID
+  ;;
+  replace)
+    if test -z $2
+    then
+        echo 'use "replace newJarFile" to replace the runing jar to "newJarFile"'
+    else
+        OLDNAME=$LIBNAME$(date +%y-%m-%d_%H:%M:%S)
+        mv $LIBNAME $OLDNAME
+        echo '[rename.....] INFO: ' $LIBNAME ' -> ' $OLDNAME
+        mv $2 $LIBNAME
+        echo '[rename.....] INFO: ' $2 ' -> ' $LIBNAME
+    fi
+  ;;
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+  ;;
+  *)
+    echo " "
+    echo "--------------------------------version: 2.0.7"       
+    echo "./if_tool {option}"
+    echo "    OPTION:"
+    echo "        | status       check the application's PID"
+    echo "        | start               start the application."
+    echo "        | remote       remote debug the application."
+    echo "        | stop                stop the application."
+    echo "        | restart             restart the server."  
+    echo "        | replace filename    replace the target file to runing jar." 
+    echo " "
+    echo ""
+  ;;
+esac
+
+exit 0

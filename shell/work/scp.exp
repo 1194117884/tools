@@ -1,0 +1,16 @@
+#!/usr/bin/expect
+# Expect script for automated SCP file transfers with password authentication
+set time 10
+
+set tart [lindex $argv 0]
+set pswd [lindex $argv 2]
+set dest [lindex $argv 1]
+
+spawn scp $tart $dest
+
+expect {
+ "*yes/no*" {send "yes\r"; exp_continue}
+ "*assword*" {send "$pswd\r"}
+}
+
+interact

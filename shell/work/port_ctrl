@@ -1,0 +1,21 @@
+#!/bin/bash
+# Process control script to manage servers by port number
+port=$1
+action=$2
+
+echo "try to [$action] the server $port"
+
+running=$(netstat -anp | grep 0.0.0.0:$port |awk '{print $7}' | awk -F '/' '{print $1}')
+if test -z $running
+  then
+    echo 'server is not running!!!'
+    exit 1;
+fi
+
+
+rootPath=$(dirname $(find /root -type f -name $(ps --no-headers $(netstat -anp | grep 0.0.0.0:$port |awk '{print $7}' | awk -F '/' '{print $1}') | awk '{print $9}')))
+
+echo 'server root-path is:'$rootPath
+
+cd $rootPath && ./ryc_tool $action
+exit 0;

@@ -1,0 +1,5 @@
+#!/bin/bash
+# SSH connection script for accessing Alibaba Cloud Bastion host
+#ssh $1@47.94.91.236 -p 60022
+
+/usr/bin/expect ~/Documents/Tools/sshg.exp $1@gsskslwllk-public.bastionhost.aliyuncs.com Lyk0910!

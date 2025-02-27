@@ -1,0 +1,61 @@
+#!/bin/bash
+# SSH connection utility for accessing personal Raspberry Pi servers with menu-based server selection
+envs=("my")
+
+#show all envs usefor chosen.
+ID=1
+echo 'choose your envirment (V =. =V)'
+for env in ${envs[*]}
+do
+  echo '  |-' $ID ' -> ' $env
+  ID=$(($ID+1))
+done
+
+#read user's choose.
+read env
+target=${envs[$(($env-1))]}
+echo 'choose your server in env:['$target']'
+
+#different server for different envirment
+my=(
+    "10.10.10.4:kangkang:master"
+    "10.10.10.5:kangkang:node01"
+    "10.10.10.6:kangkang:node02"
+    "10.10.10.7:kangkang:node02"
+)
+
+
+choosehost=''
+choosepswd=''
+
+case "$target" in
+    my)
+        ID_=1
+        for t in ${my[*]}
+        do
+            b=($(tr ":" " " <<< $t))
+            echo '  |-'$ID_ ' -> ' ${b[0]} ${b[2]}
+            ID_=$(($ID_+1))
+        done
+        read chose_
+        b=($(tr ":" " " <<< ${my[$((chose_-1))]}))
+        choosehost=${b[0]}
+        choosepswd=${b[1]}
+    ;;
+    *)
+        echo 'not found envriment. [exit 0]'
+        exit 0
+    ;;
+esac
+
+if test -z  $choosehost
+    then
+        echo 'not found sever. [exit 1]'
+        exit 0
+fi
+
+
+echo 'login server: '$choosehost 'use passwd: '$choosepswd
+/usr/bin/expect ~/Documents/Tools/ssh.exp 'pi@'$choosehost $choosepswd
+
+exit 0

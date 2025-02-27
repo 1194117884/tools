@@ -1,0 +1,14 @@
+#!/bin/bash
+# Utility to find and list IP addresses of Raspberry Pi devices on the local network
+
+macs=[]
+
+
+ip_mac_map=$(arp -an | grep 'dc:a6:32' | awk '{print $2 "_" $4}')
+
+for str in ${ip_mac_map[*]}
+do
+	echo $str | cut -d '_' -f 1 | cut -d '(' -f 2 | cut -d ')' -f 1
+done
+
+exit 0
